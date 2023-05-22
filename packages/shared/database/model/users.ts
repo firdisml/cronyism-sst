@@ -4,4 +4,5 @@ export default interface Users {
     picture: string | undefined
     name: string | undefined
     description: string
+    vouch: number
 }

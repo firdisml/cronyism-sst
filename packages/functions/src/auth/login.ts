@@ -1,7 +1,6 @@
 import { Session, AuthHandler, GoogleAdapter,  } from "sst/node/auth";
 import Connect from "../../../shared/database/connect/connect"
 import Users from "../../../shared/database/model/users"
-import { ObjectId } from "mongodb";
 declare module "sst/node/auth" {
   export interface SessionTypes {
     user: {
@@ -20,25 +19,41 @@ export const handler = AuthHandler({
         const client = await Connect()
         const database = client.collection("Users")
 
-        const User: Users= {
-          sub: claims.sub,
-          email: claims.email,
-          picture: claims.picture,
-          name: claims.given_name,
-          description : "Default"
-        };
+        const response = await database.findOne({ email : claims.email });
 
-        const response = await database.insertOne(User)
+        if (!response){
 
+          const User: Users= {
+            sub: claims.sub,
+            email: claims.email,
+            picture: claims.picture,
+            name: claims.given_name,
+            description : "Default",
+            vouch: 0
+          };
+  
+          const insert = await database.insertOne(User)
 
+          return Session.parameter({
+            redirect: "http://localhost:3000/",
+            type: "user",
+            properties: {
+              user_id: insert.insertedId.toString(),
+            },
+          });
 
-        return Session.parameter({
-          redirect: "http://localhost:3000/",
-          type: "user",
-          properties: {
-            user_id: response.insertedId.toString(),
-          },
-        });
+        }
+        else{
+
+          return Session.parameter({
+            redirect: "http://localhost:3000/",
+            type: "user",
+            properties: {
+              user_id: response._id.toString(),
+            },
+          });
+
+        }
       },
     }),
   },
