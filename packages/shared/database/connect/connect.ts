@@ -2,7 +2,7 @@ import { MongoClient, Db } from "mongodb"
 
 let cached: Db | null = null;
 
-const connection = "mongodb+srv://admin:admin123456789@cluster0.516vo3v.mongodb.net/?retryWrites=true&w=majority"
+const connection = ""
 
 export default async function Connect(): Promise<Db> {
 
